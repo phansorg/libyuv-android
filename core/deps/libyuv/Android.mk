@@ -50,7 +50,21 @@ LOCAL_SRC_FILES := \
     source/scale_win.cc         \
     source/video_common.cc
 
-common_CFLAGS := -Wall -fexceptions -DLIBYUV_DISABLE_SVE -DLIBYUV_DISABLE_NEON_DOTPROD -DLIBYUV_DISABLE_NEON_I8MM
+# [update]Disable SVE, NEON_DOTPROD, NEON_I8MM by default
+#common_CFLAGS := -Wall -fexceptions
+common_CFLAGS := -Wall -fexceptions -DLIBYUV_DISABLE_SVE -DLIBYUV_DISABLE_NEON
+
+# [add]Disable JPEG support by default
+LIBYUV_DISABLE_JPEG := "yes"
+
+ifneq ($(LIBYUV_DISABLE_JPEG), "yes")
+LOCAL_SRC_FILES += \
+    source/convert_jpeg.cc      \
+    source/mjpeg_decoder.cc     \
+    source/mjpeg_validate.cc
+common_CFLAGS += -DHAVE_JPEG
+LOCAL_SHARED_LIBRARIES := libjpeg
+endif
 
 LOCAL_CFLAGS += $(common_CFLAGS)
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
@@ -65,3 +79,38 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_WHOLE_STATIC_LIBRARIES := libyuv_static
+LOCAL_MODULE := libyuv
+ifneq ($(LIBYUV_DISABLE_JPEG), "yes")
+LOCAL_SHARED_LIBRARIES := libjpeg
+endif
+
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_STATIC_LIBRARIES := libyuv_static
+LOCAL_SHARED_LIBRARIES := libjpeg
+LOCAL_MODULE_TAGS := tests
+LOCAL_CPP_EXTENSION := .cc
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
+LOCAL_SRC_FILES := \
+    unit_test/basictypes_test.cc    \
+    unit_test/color_test.cc         \
+    unit_test/compare_test.cc       \
+    unit_test/convert_argb_test.cc  \
+    unit_test/convert_test.cc       \
+    unit_test/cpu_test.cc           \
+    unit_test/cpu_thread_test.cc    \
+    unit_test/math_test.cc          \
+    unit_test/planar_test.cc        \
+    unit_test/rotate_argb_test.cc   \
+    unit_test/rotate_test.cc        \
+    unit_test/scale_argb_test.cc    \
+    unit_test/scale_plane_test.cc   \
+    unit_test/scale_rgb_test.cc     \
+    unit_test/scale_test.cc         \
+    unit_test/scale_uv_test.cc      \
+    unit_test/unit_test.cc          \
+    unit_test/video_common_test.cc
+
+LOCAL_MODULE := libyuv_unittest
+include $(BUILD_NATIVE_TEST)
