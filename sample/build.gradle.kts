@@ -51,7 +51,7 @@ kotlin {
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    implementation(project(":core"))
+    implementation(project(":libyuv"))
 
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)

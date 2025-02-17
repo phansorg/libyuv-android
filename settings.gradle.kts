@@ -19,5 +19,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "libyuv-android"
-include("core")
+include("libyuv")
 include("sample")
